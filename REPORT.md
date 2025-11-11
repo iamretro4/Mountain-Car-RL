@@ -1,64 +1,64 @@
-# Mountain Car Environment with PPO Algorithm
-## Reinforcement Learning Project Report
+# Mountain Car Environment με PPO Algorithm
+## Αναφορά Project Reinforcement Learning
 
 ---
 
-## Table of Contents
-1. [Introduction](#introduction)
-2. [Environment Description](#environment-description)
+## Περιεχόμενα
+1. [Εισαγωγή](#εισαγωγή)
+2. [Περιγραφή Περιβάλλοντος](#περιγραφή-περιβάλλοντος)
 3. [Observation Space](#observation-space)
 4. [Action Space](#action-space)
 5. [State Space](#state-space)
-6. [Reward Structure](#reward-structure)
-7. [Algorithm Selection: PPO](#algorithm-selection-ppo)
-8. [Algorithm Comparison](#algorithm-comparison)
-9. [Code Explanation](#code-explanation)
-10. [Results and Analysis](#results-and-analysis)
-11. [Conclusion](#conclusion)
+6. [Δομή Rewards](#δομή-rewards)
+7. [Επιλογή Αλγορίθμου: PPO](#επιλογή-αλγορίθμου-ppo)
+8. [Σύγκριση Αλγορίθμων](#σύγκριση-αλγορίθμων)
+9. [Εξήγηση Κώδικα](#εξήγηση-κώδικα)
+10. [Αποτελέσματα και Ανάλυση](#αποτελέσματα-και-ανάλυση)
+11. [Συμπέρασμα](#συμπέρασμα)
 
 ---
 
-## 1. Introduction
+## 1. Εισαγωγή
 
-This project implements a Reinforcement Learning (RL) solution for the Mountain Car problem using the Proximal Policy Optimization (PPO) algorithm. The Mountain Car is a classic control problem where an underpowered car must learn to reach a goal position on top of a hill by strategically building momentum.
+Αυτό το project υλοποιεί μια λύση Reinforcement Learning (RL) για το πρόβλημα Mountain Car χρησιμοποιώντας τον αλγόριθμο Proximal Policy Optimization (PPO). Το Mountain Car είναι ένα κλασικό πρόβλημα ελέγχου όπου ένα υποκινητήριο αυτοκίνητο πρέπει να μάθει να φτάνει σε μια θέση στόχο στην κορυφή ενός λόφου με στρατηγική δημιουργία ορμής.
 
-**Environment**: Mountain Car v0 (Gymnasium)  
-**Algorithm**: Proximal Policy Optimization (PPO)  
+**Περιβάλλον**: Mountain Car v0 (Gymnasium)  
+**Αλγόριθμος**: Proximal Policy Optimization (PPO)  
 **Framework**: Stable Baselines3
 
 ---
 
-## 2. Environment Description
+## 2. Περιγραφή Περιβάλλοντος
 
-The Mountain Car environment is a deterministic Markov Decision Process (MDP) where:
-- A car is placed at the bottom of a sinusoidal valley
-- The car has limited power and cannot directly drive up the hill
-- The agent must learn to build momentum by moving back and forth
-- The goal is to reach the flag on top of the right hill (position ≥ 0.5)
+Το περιβάλλον Mountain Car είναι ένα deterministic Markov Decision Process (MDP) όπου:
+- Ένα αυτοκίνητο τοποθετείται στο κάτω μέρος μιας ημιτονοειδούς κοιλάδας
+- Το αυτοκίνητο έχει περιορισμένη ισχύ και δεν μπορεί να οδηγήσει απευθείας προς τα πάνω στον λόφο
+- Ο πράκτορας πρέπει να μάθει να δημιουργεί ορμή κινούμενος μπρος-πίσω
+- Ο στόχος είναι να φτάσει τη σημαία στην κορυφή του δεξιού λόφου (θέση ≥ 0.5)
 
-**Key Characteristics**:
-- **Deterministic**: Same actions produce same results
-- **Sparse Rewards**: Only -1 per timestep (no intermediate rewards)
-- **Episodic**: Episodes end when goal is reached or after 200 steps
-- **Challenge**: Requires strategic planning to build momentum
+**Κύρια Χαρακτηριστικά**:
+- **Deterministic**: Οι ίδιες ενέργειες παράγουν τα ίδια αποτελέσματα
+- **Sparse Rewards**: Μόνο -1 ανά timestep (χωρίς ενδιάμεσα rewards)
+- **Episodic**: Τα επεισόδια τελειώνουν όταν φτάνει ο στόχος ή μετά από 200 βήματα
+- **Πρόκληση**: Απαιτεί στρατηγικό σχεδιασμό για δημιουργία ορμής
 
 ---
 
 ## 3. Observation Space
 
-The observation space is a **Box** with shape `(2,)` and dtype `float32`:
+Το observation space είναι ένα **Box** με shape `(2,)` και dtype `float32`:
 
-| Index | Observation | Min | Max | Description |
-|-------|-------------|-----|-----|-------------|
-| 0 | Position | -1.2 | 0.6 | Car's position along x-axis (meters) |
-| 1 | Velocity | -0.07 | 0.07 | Car's velocity (m/s) |
+| Index | Observation | Min | Max | Περιγραφή |
+|-------|-------------|-----|-----|-----------|
+| 0 | Position | -1.2 | 0.6 | Θέση αυτοκινήτου κατά μήκος x-άξονα (μέτρα) |
+| 1 | Velocity | -0.07 | 0.07 | Ταχύτητα αυτοκινήτου (m/s) |
 
-**Observation Details**:
-- **Position**: Ranges from -1.2 (left boundary) to 0.6 (right boundary)
-- **Velocity**: Clipped between -0.07 and 0.07 m/s
-- The observation is continuous and fully observable
+**Λεπτομέρειες Observation**:
+- **Position**: Εύρος από -1.2 (αριστερό όριο) έως 0.6 (δεξιό όριο)
+- **Velocity**: Περιορίζεται μεταξύ -0.07 και 0.07 m/s
+- Το observation είναι συνεχές και πλήρως παρατηρήσιμο
 
-**Example Observation**:
+**Παράδειγμα Observation**:
 ```python
 obs = [-0.46352962, 0.0]  # Position: -0.46, Velocity: 0.0
 ```
@@ -67,207 +67,207 @@ obs = [-0.46352962, 0.0]  # Position: -0.46, Velocity: 0.0
 
 ## 4. Action Space
 
-The action space is **Discrete(3)**, meaning there are 3 possible actions:
+Το action space είναι **Discrete(3)**, δηλαδή υπάρχουν 3 πιθανές ενέργειες:
 
-| Action | Value | Description |
-|--------|-------|-------------|
-| 0 | Accelerate Left | Push car to the left |
-| 1 | No Acceleration | Coast (no force applied) |
-| 2 | Accelerate Right | Push car to the right |
+| Action | Value | Περιγραφή |
+|--------|-------|-----------|
+| 0 | Accelerate Left | Σπρώχνει το αυτοκίνητο αριστερά |
+| 1 | No Acceleration | Αδράνεια (χωρίς εφαρμογή δύναμης) |
+| 2 | Accelerate Right | Σπρώχνει το αυτοκίνητο δεξιά |
 
-**Action Characteristics**:
-- Discrete actions (only one action per timestep)
+**Χαρακτηριστικά Actions**:
+- Discrete actions (μόνο μία ενέργεια ανά timestep)
 - Deterministic effects
-- Limited force: 0.001 (makes the problem challenging)
+- Περιορισμένη δύναμη: 0.001 (κάνει το πρόβλημα προκλητικό)
 
 ---
 
 ## 5. State Space
 
-The state space is equivalent to the observation space in this fully observable environment:
+Το state space είναι ισοδύναμο με το observation space σε αυτό το πλήρως παρατηρήσιμο περιβάλλον:
 
 **State = [Position, Velocity]**
 
 **State Transitions**:
-The dynamics follow these equations:
+Οι δυναμικές ακολουθούν αυτές τις εξισώσεις:
 
 ```
 velocity_{t+1} = velocity_t + (action - 1) * force - cos(3 * position_t) * gravity
 position_{t+1} = position_t + velocity_{t+1}
 ```
 
-Where:
+Όπου:
 - `force = 0.001`
 - `gravity = 0.0025`
 - `action - 1` maps: 0→-1, 1→0, 2→+1
 
-**Boundary Conditions**:
-- Position is clipped to `[-1.2, 0.6]`
-- Velocity is clipped to `[-0.07, 0.07]`
-- Collisions are inelastic (velocity set to 0 at boundaries)
+**Συνθήκες Ορίων**:
+- Η θέση περιορίζεται στο `[-1.2, 0.6]`
+- Η ταχύτητα περιορίζεται στο `[-0.07, 0.07]`
+- Οι συγκρούσεις είναι ανελαστικές (ταχύτητα ορίζεται σε 0 στα όρια)
 
-**Starting State**:
-- Position: Uniform random in `[-0.6, -0.4]`
-- Velocity: Always 0
-
----
-
-## 6. Reward Structure
-
-**Reward Function**:
-```
-reward = -1 for every timestep
-```
-
-**Reward Characteristics**:
-- **Sparse**: No intermediate rewards for progress
-- **Negative**: Penalizes time spent (encourages efficiency)
-- **Terminal**: Episode ends when position ≥ 0.5 (goal reached)
-- **Maximum Episode Length**: 200 steps (truncation)
-
-**Reward Range**:
-- Best possible: -1 (reaches goal in 1 step, though unlikely)
-- Typical successful episode: -100 to -200
-- Failed episode: -200 (max length reached)
-
-**Why This Reward Structure?**:
-- Encourages reaching the goal as quickly as possible
-- No reward shaping needed (keeps problem simple)
-- Creates a challenging exploration problem
+**Αρχική Κατάσταση**:
+- Position: Ομοιόμορφη τυχαία στο `[-0.6, -0.4]`
+- Velocity: Πάντα 0
 
 ---
 
-## 7. Algorithm Selection: PPO
+## 6. Δομή Rewards
 
-### Why PPO for Mountain Car?
+**Συνάρτηση Reward**:
+```
+reward = -1 για κάθε timestep
+```
+
+**Χαρακτηριστικά Rewards**:
+- **Sparse**: Χωρίς ενδιάμεσα rewards για πρόοδο
+- **Αρνητικό**: Τιμωρεί τον χρόνο που περνάει (ενθαρρύνει αποδοτικότητα)
+- **Τελικό**: Το επεισόδιο τελειώνει όταν position ≥ 0.5 (φτάνει ο στόχος)
+- **Μέγιστο Μήκος Επεισοδίου**: 200 βήματα (truncation)
+
+**Εύρος Rewards**:
+- Καλύτερο δυνατό: -1 (φτάνει στόχο σε 1 βήμα, αλλά απίθανο)
+- Τυπικό επιτυχημένο επεισόδιο: -100 έως -200
+- Αποτυχημένο επεισόδιο: -200 (έφτασε το μέγιστο μήκος)
+
+**Γιατί αυτή η δομή Rewards?**:
+- Ενθαρρύνει την επίτευξη του στόχου όσο πιο γρήγορα γίνεται
+- Δεν χρειάζεται reward shaping (κρατάει το πρόβλημα απλό)
+- Δημιουργεί ένα προκλητικό πρόβλημα exploration
+
+---
+
+## 7. Επιλογή Αλγορίθμου: PPO
+
+### Γιατί PPO για Mountain Car?
 
 **1. On-Policy Learning**
-- PPO is on-policy, making it sample-efficient for this environment
-- Mountain Car benefits from learning from current policy's experience
-- No need for experience replay (unlike DQN)
+- Το PPO είναι on-policy, καθιστώντας το sample-efficient για αυτό το περιβάλλον
+- Το Mountain Car ωφελείται από την εκμάθηση από την εμπειρία της τρέχουσας πολιτικής
+- Δεν χρειάζεται experience replay (σε αντίθεση με DQN)
 
-**2. Stability**
-- PPO's clipped objective prevents large policy updates
-- Important for Mountain Car where small changes in policy can significantly affect behavior
-- Reduces risk of policy collapse
+**2. Σταθερότητα**
+- Το clipped objective του PPO αποτρέπει μεγάλες ενημερώσεις πολιτικής
+- Σημαντικό για το Mountain Car όπου μικρές αλλαγές στην πολιτική μπορούν να επηρεάσουν σημαντικά τη συμπεριφορά
+- Μειώνει τον κίνδυνο κατάρρευσης πολιτικής
 
-**3. Continuous State, Discrete Action**
-- PPO handles discrete action spaces well
-- Works efficiently with continuous observations (position, velocity)
-- No need for action discretization
+**3. Συνεχές State, Discrete Action**
+- Το PPO χειρίζεται καλά discrete action spaces
+- Λειτουργεί αποτελεσματικά με συνεχή observations (θέση, ταχύτητα)
+- Δεν χρειάζεται action discretization
 
 **4. Sample Efficiency**
-- PPO can learn with relatively few samples
-- Mountain Car episodes are short (≤200 steps), making sample efficiency important
-- Multiple epochs per update improve data utilization
+- Το PPO μπορεί να μάθει με σχετικά λίγα samples
+- Τα επεισόδια Mountain Car είναι σύντομα (≤200 βήματα), καθιστώντας τη sample efficiency σημαντική
+- Πολλαπλές epochs ανά ενημέρωση βελτιώνουν τη χρήση δεδομένων
 
-**5. Hyperparameter Robustness**
-- PPO is known for being robust to hyperparameter choices
-- Good default hyperparameters work well out-of-the-box
-- Reduces tuning time
+**5. Robustness Hyperparameters**
+- Το PPO είναι γνωστό για την ανθεκτικότητά του στις επιλογές hyperparameters
+- Καλά default hyperparameters λειτουργούν καλά out-of-the-box
+- Μειώνει τον χρόνο tuning
 
 **6. Deterministic Environment**
-- PPO works well in deterministic environments
-- No need for stochastic policy exploration (though PPO supports it)
+- Το PPO λειτουργεί καλά σε deterministic περιβάλλοντα
+- Δεν χρειάζεται stochastic policy exploration (αν και το PPO το υποστηρίζει)
 
-**7. Proven Performance**
-- PPO has shown strong performance on classic control tasks
-- Widely used and well-documented
-- Good balance between performance and implementation complexity
+**7. Αποδεδειγμένη Απόδοση**
+- Το PPO έχει δείξει ισχυρή απόδοση σε κλασικά προβλήματα ελέγχου
+- Ευρέως χρησιμοποιούμενο και καλά τεκμηριωμένο
+- Καλή ισορροπία μεταξύ απόδοσης και πολυπλοκότητας υλοποίησης
 
 ---
 
-## 8. Algorithm Comparison
+## 8. Σύγκριση Αλγορίθμων
 
-### Comparison Table
+### Πίνακας Σύγκρισης
 
-| Algorithm | Type | Sample Efficiency | Stability | Discrete Actions | Best For |
-|-----------|------|-------------------|-----------|------------------|----------|
-| **PPO** | On-policy | High | Very High | ✅ | **Mountain Car** |
-| DQN | Off-policy | Medium | Medium | ✅ | Atari games |
-| A2C | On-policy | High | High | ✅ | Similar to PPO |
-| SAC | Off-policy | High | High | ❌ | Continuous actions |
-| DDPG | Off-policy | Medium | Medium | ❌ | Continuous actions |
-| TRPO | On-policy | High | Very High | ✅ | Similar to PPO |
+| Αλγόριθμος | Τύπος | Sample Efficiency | Σταθερότητα | Discrete Actions | Καλύτερο Για |
+|-----------|-------|-------------------|-------------|------------------|--------------|
+| **PPO** | On-policy | Υψηλή | Πολύ Υψηλή | ✅ | **Mountain Car** |
+| DQN | Off-policy | Μέτρια | Μέτρια | ✅ | Atari games |
+| A2C | On-policy | Υψηλή | Υψηλή | ✅ | Παρόμοιο με PPO |
+| SAC | Off-policy | Υψηλή | Υψηλή | ❌ | Συνεχείς ενέργειες |
+| DDPG | Off-policy | Μέτρια | Μέτρια | ❌ | Συνεχείς ενέργειες |
+| TRPO | On-policy | Υψηλή | Πολύ Υψηλή | ✅ | Παρόμοιο με PPO |
 
-### Detailed Comparison
+### Αναλυτική Σύγκριση
 
 #### 1. PPO vs DQN
 
-**PPO Advantages**:
-- Better sample efficiency (on-policy learning)
-- More stable training (clipped objective)
-- Handles continuous state spaces naturally
-- Works well with short episodes
+**Πλεονεκτήματα PPO**:
+- Καλύτερη sample efficiency (on-policy learning)
+- Πιο σταθερή εκπαίδευση (clipped objective)
+- Χειρίζεται φυσικά συνεχή state spaces
+- Λειτουργεί καλά με σύντομα επεισόδια
 
-**DQN Disadvantages for Mountain Car**:
-- Requires experience replay (memory overhead)
-- Less sample efficient
-- May overfit to past experiences
-- Better suited for high-dimensional observations (e.g., images)
+**Μειονεκτήματα DQN για Mountain Car**:
+- Απαιτεί experience replay (memory overhead)
+- Λιγότερο sample efficient
+- Μπορεί να overfit σε προηγούμενες εμπειρίες
+- Καλύτερο για high-dimensional observations (π.χ. εικόνες)
 
-**Verdict**: PPO is better suited for Mountain Car's continuous state, discrete action space.
+**Απόφαση**: Το PPO είναι καλύτερο για το συνεχές state, discrete action space του Mountain Car.
 
 #### 2. PPO vs A2C
 
-**Similarities**:
-- Both are on-policy actor-critic methods
-- Similar sample efficiency
-- Both support discrete actions
+**Ομοιότητες**:
+- Και τα δύο είναι on-policy actor-critic methods
+- Παρόμοια sample efficiency
+- Και τα δύο υποστηρίζουν discrete actions
 
-**PPO Advantages**:
-- More stable (clipped surrogate objective)
-- Better hyperparameter robustness
-- Prevents large policy updates
+**Πλεονεκτήματα PPO**:
+- Πιο σταθερό (clipped surrogate objective)
+- Καλύτερη robustness hyperparameters
+- Αποτρέπει μεγάλες ενημερώσεις πολιτικής
 
-**A2C Advantages**:
-- Simpler implementation
-- Slightly faster per update
+**Πλεονεκτήματα A2C**:
+- Απλούστερη υλοποίηση
+- Ελαφρώς ταχύτερο ανά ενημέρωση
 
-**Verdict**: PPO is preferred for stability, though A2C would also work well.
+**Απόφαση**: Το PPO προτιμάται για σταθερότητα, αν και το A2C θα λειτουργούσε επίσης καλά.
 
 #### 3. PPO vs SAC/DDPG
 
-**Key Difference**: SAC and DDPG are designed for **continuous action spaces**
+**Κύρια Διαφορά**: Το SAC και το DDPG σχεδιάστηκαν για **συνεχή action spaces**
 
-**Why Not Suitable**:
-- Mountain Car has discrete actions (3 choices)
-- Would require action discretization
-- Overkill for simple discrete action space
-- More complex hyperparameter tuning
+**Γιατί δεν είναι κατάλληλα**:
+- Το Mountain Car έχει discrete actions (3 επιλογές)
+- Θα απαιτούσε action discretization
+- Overkill για απλό discrete action space
+- Πιο πολύπλοκο hyperparameter tuning
 
-**Verdict**: Not suitable for discrete action spaces.
+**Απόφαση**: Δεν είναι κατάλληλα για discrete action spaces.
 
 #### 4. PPO vs TRPO
 
-**Similarities**:
-- Both are on-policy with trust region methods
-- Both very stable
+**Ομοιότητες**:
+- Και τα δύο είναι on-policy με trust region methods
+- Και τα δύο πολύ σταθερά
 
-**PPO Advantages**:
-- Simpler implementation (clipped objective vs constrained optimization)
-- Faster computation
-- Easier to tune
+**Πλεονεκτήματα PPO**:
+- Απλούστερη υλοποίηση (clipped objective vs constrained optimization)
+- Ταχύτερος υπολογισμός
+- Ευκολότερο tuning
 
-**TRPO Advantages**:
-- Theoretically more principled
-- Guaranteed monotonic improvement
+**Πλεονεκτήματα TRPO**:
+- Θεωρητικά πιο αρχιτεκτονικό
+- Εγγυημένη μονοτονική βελτίωση
 
-**Verdict**: PPO is preferred for practical implementation, TRPO for theoretical guarantees.
+**Απόφαση**: Το PPO προτιμάται για πρακτική υλοποίηση, το TRPO για θεωρητικές εγγυήσεις.
 
-### Final Selection: PPO
+### Τελική Επιλογή: PPO
 
-**Summary of Why PPO**:
-1. ✅ Optimal for discrete actions + continuous states
-2. ✅ High sample efficiency (important for short episodes)
-3. ✅ Very stable training
-4. ✅ Good default hyperparameters
-5. ✅ Proven performance on classic control
-6. ✅ Balanced complexity vs performance
+**Σύνοψη Γιατί PPO**:
+1. ✅ Βέλτιστο για discrete actions + συνεχή states
+2. ✅ Υψηλή sample efficiency (σημαντικό για σύντομα επεισόδια)
+3. ✅ Πολύ σταθερή εκπαίδευση
+4. ✅ Καλά default hyperparameters
+5. ✅ Αποδεδειγμένη απόδοση σε κλασικό έλεγχο
+6. ✅ Ισορροπημένη πολυπλοκότητα vs απόδοση
 
 ---
 
-## 9. Code Explanation
+## 9. Εξήγηση Κώδικα
 
 ### 9.1 Environment Setup
 
@@ -277,10 +277,10 @@ def create_environment():
     return env
 ```
 
-**Explanation**:
-- Creates the Mountain Car environment from Gymnasium
-- `render_mode=None` for training (faster, no visualization)
-- Environment automatically provides correct observation/action spaces
+**Εξήγηση**:
+- Δημιουργεί το περιβάλλον Mountain Car από το Gymnasium
+- `render_mode=None` για εκπαίδευση (ταχύτερο, χωρίς visualization)
+- Το περιβάλλον παρέχει αυτόματα τα σωστά observation/action spaces
 
 ### 9.2 Vectorized Environments
 
@@ -288,78 +288,78 @@ def create_environment():
 env = make_vec_env("MountainCar-v0", n_envs=4, seed=42)
 ```
 
-**Explanation**:
-- Creates 4 parallel environments for faster training
-- Each environment runs independently
-- Collects 4x more experience per step
-- Significantly speeds up training
+**Εξήγηση**:
+- Δημιουργεί 4 παράλληλα περιβάλλοντα για ταχύτερη εκπαίδευση
+- Κάθε περιβάλλον τρέχει ανεξάρτητα
+- Συλλέγει 4x περισσότερη εμπειρία ανά βήμα
+- Επιταχύνει σημαντικά την εκπαίδευση
 
 ### 9.3 PPO Model Configuration
 
 ```python
 model = PPO(
-    "MlpPolicy",              # Policy network type
+    "MlpPolicy",              # Τύπος policy network
     env,
-    learning_rate=3e-4,       # How fast to learn
-    n_steps=2048,             # Steps before update
-    batch_size=64,            # Training batch size
-    n_epochs=10,              # Training epochs per update
+    learning_rate=3e-4,       # Πόσο γρήγορα μαθαίνει
+    n_steps=2048,             # Βήματα πριν την ενημέρωση
+    batch_size=64,            # Μέγεθος batch εκπαίδευσης
+    n_epochs=10,              # Epochs εκπαίδευσης ανά ενημέρωση
     gamma=0.99,               # Discount factor
-    gae_lambda=0.95,          # GAE parameter
+    gae_lambda=0.95,          # Παράμετρος GAE
     clip_range=0.2,           # PPO clipping
-    ent_coef=0.01,            # Exploration bonus
-    vf_coef=0.5,              # Value function weight
+    ent_coef=0.01,            # Bonus exploration
+    vf_coef=0.5,              # Βάρος value function
     max_grad_norm=0.5,        # Gradient clipping
     seed=42
 )
 ```
 
-**Hyperparameter Explanation**:
+**Εξήγηση Hyperparameters**:
 
-- **`MlpPolicy`**: Multi-layer perceptron (neural network)
-  - Input: 2 (position, velocity)
-  - Output: 3 action probabilities
+- **`MlpPolicy`**: Multi-layer perceptron (νευρωνικό δίκτυο)
+  - Input: 2 (θέση, ταχύτητα)
+  - Output: 3 πιθανότητες actions
 
-- **`learning_rate=3e-4`**: Standard learning rate
-  - Too high: unstable training
-  - Too low: slow learning
+- **`learning_rate=3e-4`**: Τυπικό learning rate
+  - Πολύ υψηλό: ασταθής εκπαίδευση
+  - Πολύ χαμηλό: αργή εκμάθηση
 
-- **`n_steps=2048`**: Collect 2048 steps before updating
-  - Balances sample efficiency and update frequency
-  - With 4 envs: 512 steps per env
+- **`n_steps=2048`**: Συλλέγει 2048 βήματα πριν την ενημέρωση
+  - Ισορροπεί sample efficiency και συχνότητα ενημέρωσης
+  - Με 4 envs: 512 βήματα ανά env
 
-- **`batch_size=64`**: Mini-batch size for training
-  - Divides collected experience into batches
-  - 2048 / 64 = 32 batches per update
+- **`batch_size=64`**: Μέγεθος mini-batch για εκπαίδευση
+  - Διαιρεί τη συλλεγμένη εμπειρία σε batches
+  - 2048 / 64 = 32 batches ανά ενημέρωση
 
-- **`n_epochs=10`**: Train on same data 10 times
-  - Improves sample efficiency
-  - PPO can safely do multiple epochs due to clipping
+- **`n_epochs=10`**: Εκπαιδεύεται στα ίδια δεδομένα 10 φορές
+  - Βελτιώνει τη sample efficiency
+  - Το PPO μπορεί να κάνει με ασφάλεια πολλαπλές epochs λόγω clipping
 
 - **`gamma=0.99`**: Discount factor
-  - How much to value future rewards
-  - 0.99 = values rewards 100 steps ahead at ~37%
+  - Πόσο να αξιολογεί future rewards
+  - 0.99 = αξιολογεί rewards 100 βήματα μπροστά στο ~37%
 
 - **`gae_lambda=0.95`**: Generalized Advantage Estimation
-  - Balances bias and variance in advantage estimates
-  - 0.95 = good balance for Mountain Car
+  - Ισορροπεί bias και variance σε advantage estimates
+  - 0.95 = καλή ισορροπία για Mountain Car
 
-- **`clip_range=0.2`**: PPO's key feature
-  - Prevents policy from changing too much
-  - Clips probability ratio between 0.8 and 1.2
-  - Ensures stable learning
+- **`clip_range=0.2`**: Βασικό χαρακτηριστικό PPO
+  - Αποτρέπει την πολιτική να αλλάζει πολύ
+  - Περιορίζει probability ratio μεταξύ 0.8 και 1.2
+  - Εξασφαλίζει σταθερή εκμάθηση
 
-- **`ent_coef=0.01`**: Entropy coefficient
-  - Encourages exploration
-  - Prevents policy from becoming too deterministic too early
+- **`ent_coef=0.01`**: Συντελεστής entropy
+  - Ενθαρρύνει exploration
+  - Αποτρέπει την πολιτική να γίνει πολύ deterministic πολύ νωρίς
 
-- **`vf_coef=0.5`**: Value function coefficient
-  - Weight for value function loss
-  - Balances policy and value learning
+- **`vf_coef=0.5`**: Συντελεστής value function
+  - Βάρος για value function loss
+  - Ισορροπεί εκπαίδευση πολιτικής και value
 
 - **`max_grad_norm=0.5`**: Gradient clipping
-  - Prevents exploding gradients
-  - Improves training stability
+  - Αποτρέπει exploding gradients
+  - Βελτιώνει τη σταθερότητα εκπαίδευσης
 
 ### 9.4 Training Process
 
@@ -371,179 +371,179 @@ model.learn(
 )
 ```
 
-**Explanation**:
-- Trains for 500,000 timesteps
-- `eval_callback`: Evaluates model periodically, saves best
-- `checkpoint_callback`: Saves model checkpoints
-- `progress_bar`: Shows training progress
+**Εξήγηση**:
+- Εκπαιδεύεται για 500,000 timesteps
+- `eval_callback`: Αξιολογεί το μοντέλο περιοδικά, αποθηκεύει το καλύτερο
+- `checkpoint_callback`: Αποθηκεύει checkpoints μοντέλου
+- `progress_bar`: Δείχνει την πρόοδο εκπαίδευσης
 
-**Training Flow**:
-1. Collect 2048 steps of experience
-2. Compute advantages using GAE
-3. Train for 10 epochs on collected data
-4. Update policy and value networks
-5. Repeat until 500k timesteps
+**Ροή Εκπαίδευσης**:
+1. Συλλογή 2048 βημάτων εμπειρίας
+2. Υπολογισμός advantages χρησιμοποιώντας GAE
+3. Εκπαίδευση για 10 epochs στα συλλεγμένα δεδομένα
+4. Ενημέρωση policy και value networks
+5. Επανάληψη μέχρι 500k timesteps
 
 ### 9.5 Evaluation
 
 ```python
 def evaluate_agent(model, env, n_episodes=10, render=False):
-    # For each episode:
-    #   1. Reset environment
-    #   2. Predict action using trained model
-    #   3. Step environment
-    #   4. Collect states, actions, rewards
-    #   5. Calculate statistics
+    # Για κάθε επεισόδιο:
+    #   1. Reset περιβάλλοντος
+    #   2. Προβλέψει action χρησιμοποιώντας εκπαιδευμένο μοντέλο
+    #   3. Βήμα περιβάλλοντος
+    #   4. Συλλογή states, actions, rewards
+    #   5. Υπολογισμός στατιστικών
 ```
 
-**Explanation**:
-- Runs agent for multiple episodes
-- Uses deterministic policy (no exploration)
-- Collects data for analysis
-- Computes mean reward and episode length
+**Εξήγηση**:
+- Τρέχει τον πράκτορα για πολλαπλά επεισόδια
+- Χρησιμοποιεί deterministic policy (χωρίς exploration)
+- Συλλέγει δεδομένα για ανάλυση
+- Υπολογίζει mean reward και episode length
 
-### 9.6 PPO Algorithm Details
+### 9.6 Λεπτομέρειες Αλγορίθμου PPO
 
-**PPO Algorithm Steps**:
+**Βήματα Αλγορίθμου PPO**:
 
-1. **Collect Experience**:
+1. **Συλλογή Εμπειρίας**:
    ```python
-   # For n_steps:
+   # Για n_steps:
    action = policy.predict(observation)
    next_obs, reward, done = env.step(action)
-   # Store: (obs, action, reward, next_obs, done)
+   # Αποθήκευση: (obs, action, reward, next_obs, done)
    ```
 
-2. **Compute Advantages**:
+2. **Υπολογισμός Advantages**:
    ```python
-   # Using Generalized Advantage Estimation (GAE)
+   # Χρησιμοποιώντας Generalized Advantage Estimation (GAE)
    advantage = reward + gamma * V(next_obs) - V(obs)
-   # GAE smooths advantages using lambda
+   # Το GAE εξομαλύνει advantages χρησιμοποιώντας lambda
    ```
 
-3. **Compute Old Policy Probabilities**:
+3. **Υπολογισμός Παλιών Πιθανοτήτων Πολιτικής**:
    ```python
    old_log_prob = old_policy.log_prob(action)
    ```
 
-4. **Update Policy** (Multiple Epochs):
+4. **Ενημέρωση Πολιτικής** (Πολλαπλές Epochs):
    ```python
    for epoch in range(n_epochs):
-       # Get current policy probabilities
+       # Λήψη τρεχουσών πιθανοτήτων πολιτικής
        new_log_prob = policy.log_prob(action)
        
-       # Compute probability ratio
+       # Υπολογισμός probability ratio
        ratio = exp(new_log_prob - old_log_prob)
        
-       # Compute clipped objective
+       # Υπολογισμός clipped objective
        clipped_ratio = clip(ratio, 1 - epsilon, 1 + epsilon)
        policy_loss = -min(ratio * advantage, clipped_ratio * advantage)
        
-       # Update policy network
+       # Ενημέρωση policy network
        optimizer.step()
    ```
 
-5. **Update Value Function**:
+5. **Ενημέρωση Value Function**:
    ```python
    value_loss = (V(obs) - target_value)^2
-   # Update value network
+   # Ενημέρωση value network
    ```
 
-**Key PPO Features**:
+**Βασικά Χαρακτηριστικά PPO**:
 
-- **Clipped Surrogate Objective**: Prevents large policy updates
+- **Clipped Surrogate Objective**: Αποτρέπει μεγάλες ενημερώσεις πολιτικής
   ```python
   L^CLIP = E[min(r(θ) * A, clip(r(θ), 1-ε, 1+ε) * A)]
   ```
-  Where `r(θ) = π_θ(a|s) / π_θ_old(a|s)`
+  Όπου `r(θ) = π_θ(a|s) / π_θ_old(a|s)`
 
-- **Multiple Epochs**: Reuses collected data efficiently
+- **Πολλαπλές Epochs**: Αναχρησιμοποιεί αποτελεσματικά συλλεγμένα δεδομένα
 
-- **Actor-Critic**: Learns both policy (actor) and value function (critic)
+- **Actor-Critic**: Μαθαίνει τόσο policy (actor) όσο και value function (critic)
 
 ---
 
-## 10. Results and Analysis
+## 10. Αποτελέσματα και Ανάλυση
 
-### Expected Results
+### Αναμενόμενα Αποτελέσματα
 
-After training for 500,000 timesteps, the agent should:
+Μετά την εκπαίδευση για 500,000 timesteps, ο πράκτορας θα πρέπει:
 
-1. **Learn the Strategy**:
-   - Build momentum by moving left first
-   - Then accelerate right to reach the goal
-   - Reach goal position (≥0.5) consistently
+1. **Να μάθει τη Στρατηγική**:
+   - Να δημιουργεί ορμή κινώντας πρώτα αριστερά
+   - Μετά να επιταχύνει δεξιά για να φτάσει τον στόχο
+   - Να φτάνει στη θέση στόχου (≥0.5) συνεπώς
 
-2. **Performance Metrics**:
-   - Success rate: >80% (reaches goal)
-   - Mean reward: -100 to -150 (efficient episodes)
-   - Mean episode length: 100-150 steps
+2. **Μετρικές Απόδοσης**:
+   - Ποσοστό επιτυχίας: >80% (φτάνει στόχο)
+   - Mean reward: -100 έως -150 (αποδοτικά επεισόδια)
+   - Mean episode length: 100-150 βήματα
 
 3. **Learning Curve**:
-   - Initial: Random exploration, -200 reward (fails)
-   - Mid-training: Learns to build momentum, occasional success
-   - Final: Consistent success, efficient paths
+   - Αρχικό: Τυχαία exploration, -200 reward (αποτυχία)
+   - Μεσαία εκπαίδευση: Μαθαίνει να δημιουργεί ορμή, περιστασιακή επιτυχία
+   - Τελικό: Συνεπής επιτυχία, αποδοτικές διαδρομές
 
-### Analysis of States, Actions, and Rewards
+### Ανάλυση States, Actions, και Rewards
 
-**State Analysis**:
-- **Position**: Starts around -0.5, must reach 0.5
-- **Velocity**: Builds up through strategic actions
-- **Phase Space**: Shows oscillatory behavior (back-and-forth)
+**Ανάλυση State**:
+- **Position**: Ξεκινά γύρω στο -0.5, πρέπει να φτάσει 0.5
+- **Velocity**: Χτίζεται μέσω στρατηγικών actions
+- **Phase Space**: Δείχνει ταλαντωτική συμπεριφορά (μπρος-πίσω)
 
-**Action Analysis**:
-- **Early Training**: Random actions
-- **Learned Policy**: 
-  - Left when at bottom (build momentum)
-  - Right when moving left (accelerate toward goal)
-  - Strategic timing is crucial
+**Ανάλυση Actions**:
+- **Πρώιμη Εκπαίδευση**: Τυχαία actions
+- **Μαθημένη Πολιτική**: 
+  - Αριστερά όταν είναι στο κάτω μέρος (δημιουργία ορμής)
+  - Δεξιά όταν κινείται αριστερά (επιτάχυνση προς στόχο)
+  - Ο στρατηγικός συγχρονισμός είναι κρίσιμος
 
-**Reward Analysis**:
-- **Sparse Rewards**: -1 per timestep
-- **Challenge**: No intermediate feedback
-- **Solution**: PPO's advantage estimation helps with sparse rewards
-
----
-
-## 11. Conclusion
-
-### Summary
-
-This project successfully implements PPO for the Mountain Car environment:
-
-1. **Environment**: Mountain Car v0 with continuous states and discrete actions
-2. **Algorithm**: PPO selected for stability, sample efficiency, and suitability
-3. **Implementation**: Complete training and evaluation pipeline
-4. **Results**: Agent learns to reach the goal efficiently
-
-### Key Takeaways
-
-1. **PPO is well-suited** for Mountain Car due to:
-   - On-policy learning for sample efficiency
-   - Stability for reliable training
-   - Good handling of discrete actions
-
-2. **Mountain Car challenges**:
-   - Sparse rewards require good exploration
-   - Strategic planning needed (momentum building)
-   - Short episodes benefit from sample-efficient algorithms
-
-3. **PPO advantages**:
-   - Clipped objective prevents instability
-   - Multiple epochs improve data efficiency
-   - Robust hyperparameters
-
-### Future Improvements
-
-1. **Hyperparameter Tuning**: Grid search for optimal parameters
-2. **Reward Shaping**: Add intermediate rewards for progress
-3. **Algorithm Comparison**: Implement DQN, A2C for direct comparison
-4. **Visualization**: Real-time rendering of learned policy
-5. **Transfer Learning**: Test on Mountain Car Continuous variant
+**Ανάλυση Rewards**:
+- **Sparse Rewards**: -1 ανά timestep
+- **Πρόκληση**: Χωρίς ενδιάμεσα feedback
+- **Λύση**: Η εκτίμηση advantage του PPO βοηθάει με sparse rewards
 
 ---
 
-## References
+## 11. Συμπέρασμα
+
+### Σύνοψη
+
+Αυτό το project υλοποιεί επιτυχώς το PPO για το περιβάλλον Mountain Car:
+
+1. **Περιβάλλον**: Mountain Car v0 με συνεχή states και discrete actions
+2. **Αλγόριθμος**: PPO επιλέχθηκε για σταθερότητα, sample efficiency, και καταλληλότητα
+3. **Υλοποίηση**: Πλήρης pipeline εκπαίδευσης και αξιολόγησης
+4. **Αποτελέσματα**: Ο πράκτορας μαθαίνει να φτάνει τον στόχο αποτελεσματικά
+
+### Βασικά Συμπεράσματα
+
+1. **Το PPO είναι κατάλληλο** για το Mountain Car λόγω:
+   - On-policy learning για sample efficiency
+   - Σταθερότητα για αξιόπιστη εκπαίδευση
+   - Καλή χειριστικότητα discrete actions
+
+2. **Προκλήσεις Mountain Car**:
+   - Τα sparse rewards απαιτούν καλό exploration
+   - Απαιτείται στρατηγικός σχεδιασμός (δημιουργία ορμής)
+   - Τα σύντομα επεισόδια ωφελούνται από sample-efficient αλγόριθμους
+
+3. **Πλεονεκτήματα PPO**:
+   - Το clipped objective αποτρέπει αστάθεια
+   - Οι πολλαπλές epochs βελτιώνουν την αποδοτικότητα δεδομένων
+   - Ανθεκτικά hyperparameters
+
+### Μελλοντικές Βελτιώσεις
+
+1. **Hyperparameter Tuning**: Grid search για βέλτιστες παραμέτρους
+2. **Reward Shaping**: Προσθήκη ενδιάμεσων rewards για πρόοδο
+3. **Σύγκριση Αλγορίθμων**: Υλοποίηση DQN, A2C για άμεση σύγκριση
+4. **Visualization**: Real-time rendering της μαθημένης πολιτικής
+5. **Transfer Learning**: Δοκιμή στη variant Mountain Car Continuous
+
+---
+
+## Αναφορές
 
 1. Gymnasium Documentation: https://gymnasium.farama.org/environments/classic_control/mountain_car/
 2. Stable Baselines3 Documentation: https://stable-baselines3.readthedocs.io/
@@ -552,37 +552,37 @@ This project successfully implements PPO for the Mountain Car environment:
 
 ---
 
-## Appendix: Running the Code
+## Παράρτημα: Εκτέλεση Κώδικα
 
-### Installation
+### Εγκατάσταση
 
 ```bash
 pip install -r requirements.txt
 ```
 
-### Training
+### Εκπαίδευση
 
 ```bash
 python mountain_car_ppo.py
 ```
 
-### Output Files
+### Αρχεία Εξόδου
 
-- `models/mountain_car_ppo_final.zip`: Trained model
-- `results/training_analysis.png`: Training visualizations
+- `models/mountain_car_ppo_final.zip`: Εκπαιδευμένο μοντέλο
+- `results/training_analysis.png`: Visualizations εκπαίδευσης
 - `results/phase_space.png`: Phase space plot
-- `tensorboard_logs/`: TensorBoard logs for monitoring
+- `tensorboard_logs/`: TensorBoard logs για παρακολούθηση
 
-### Loading and Testing
+### Φόρτωση και Δοκιμή
 
 ```python
 from stable_baselines3 import PPO
 import gymnasium as gym
 
-# Load model
+# Φόρτωση μοντέλου
 model = PPO.load("./models/mountain_car_ppo_final")
 
-# Test
+# Δοκιμή
 env = gym.make("MountainCar-v0", render_mode="human")
 obs, info = env.reset()
 for _ in range(200):
@@ -595,5 +595,5 @@ env.close()
 
 ---
 
-**End of Report**
+**Τέλος Αναφοράς**
 

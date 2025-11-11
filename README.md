@@ -1,150 +1,146 @@
-# Mountain-Car-RL
+# Mountain Car RL Algorithm - Υλοποίηση PPO
 
-Reinforcement Learning project implementing Proximal Policy Optimization (PPO) to solve the Mountain Car environment from Gymnasium.
+Αυτό το project υλοποιεί έναν αλγόριθμο Proximal Policy Optimization (PPO) για την επίλυση του περιβάλλοντος Mountain Car από το Gymnasium.
 
-## 🚗 Project Overview
+## 🚗 Επισκόπηση Project
 
-This project trains an AI agent to solve the classic Mountain Car problem, where an underpowered car must learn to build momentum and reach a goal position on top of a hill.
+Αυτό το project εκπαιδεύει έναν AI πράκτορα να λύσει το κλασικό πρόβλημα Mountain Car, όπου ένα υποκινητήριο αυτοκίνητο πρέπει να μάθει να δημιουργεί ορμή και να φτάσει σε μια θέση στόχο στην κορυφή ενός λόφου.
 
-## ✨ Features
+## ✨ Χαρακτηριστικά
 
-- **PPO Algorithm Implementation** using Stable Baselines3
-- **Real-time Training Visualization** - Watch the car learn in real-time
-- **Interactive Dashboards** - Comprehensive HTML visualizations
-- **Bilingual Documentation** - English and Greek (Ελληνικά)
-- **Complete Training Pipeline** - From training to evaluation
-- **TensorBoard Integration** - Monitor training progress
+- **Υλοποίηση Αλγορίθμου PPO** χρησιμοποιώντας Stable Baselines3
+- **Real-time Training Visualization** - Παρακολουθήστε το αυτοκίνητο να μαθαίνει σε πραγματικό χρόνο
+- **Διαδραστικά Dashboards** - Περιεκτικά HTML visualizations
+- **Πλήρης Training Pipeline** - Από εκπαίδευση έως αξιολόγηση
+- **Ενσωμάτωση TensorBoard** - Παρακολούθηση προόδου εκπαίδευσης
 
-## 📋 Requirements
+## 📋 Απαιτήσεις
 
 - Python 3.8+
-- See `requirements.txt` for all dependencies
+- Δείτε το `requirements.txt` για όλες τις dependencies
 
-## 🚀 Quick Start
+## 🚀 Γρήγορη Έναρξη
 
-### 1. Install Dependencies
+### 1. Εγκατάσταση Dependencies
 
 ```bash
 pip install -r requirements.txt
 ```
 
-### 2. Train with Visualization
+### 2. Εκπαίδευση με Visualization
 
 ```bash
 python train_with_visualization.py
 ```
 
-This will:
-- Train a PPO agent for 500,000 timesteps
-- Show the car learning every 50 episodes
-- Save metrics automatically
-- Generate visualizations at the end
+Αυτό θα:
+- Εκπαιδεύσει έναν πράκτορα PPO για 500,000 timesteps
+- Δείξει το αυτοκίνητο να μαθαίνει κάθε 50 επεισόδια
+- Αποθηκεύσει metrics αυτόματα
+- Δημιουργήσει visualizations στο τέλος
 
-### 3. View Results
+### 3. Προβολή Αποτελεσμάτων
 
 ```bash
-# Generate interactive dashboards
+# Δημιουργία διαδραστικών dashboards
 python visualize_training.py
 
-# Open in browser
+# Άνοιγμα στον browser
 start .\visualizations\main_dashboard.html
 
-# Watch trained agent
+# Παρακολούθηση εκπαιδευμένου πράκτορα
 python view_agent.py
 ```
 
-## 📁 Project Structure
+## 📁 Δομή Project
 
 ```
 Mountain Car RL Algorithm/
-├── mountain_car_ppo.py          # Main training script
-├── train_with_visualization.py  # Training with real-time visualization
-├── visualize_training.py        # Interactive dashboard generator
-├── view_agent.py                # Watch trained agent play
-├── check_training_status.py     # Diagnostic tool
-├── extract_tensorboard_metrics.py # Extract metrics from TensorBoard
+├── mountain_car_ppo.py          # Κύριο training script
+├── train_with_visualization.py  # Εκπαίδευση με real-time visualization
+├── visualize_training.py        # Generator διαδραστικών dashboards
+├── view_agent.py                # Παρακολούθηση εκπαιδευμένου πράκτορα
+├── check_training_status.py     # Εργαλείο διαγνωστικής
+├── extract_tensorboard_metrics.py # Εξαγωγή metrics από TensorBoard
 ├── requirements.txt             # Python dependencies
-├── README.md                    # This file
-├── README_EL.md                 # Greek version
-├── REPORT.md                    # Comprehensive project report
-├── REPORT_EL.md                 # Greek report
-├── VISUALIZATION_GUIDE.md       # Visualization guide
-├── VISUALIZATION_GUIDE_EL.md    # Greek guide
-├── ΟΔΗΓΙΕΣ_ΕΚΤΕΛΕΣΗΣ_EL.md     # Execution guide (Greek)
-├── models/                      # Trained models
-├── results/                     # Training results and plots
-├── visualizations/              # Interactive HTML dashboards
-├── training_logs/               # Training metrics
+├── README.md                    # Αυτό το αρχείο
+├── REPORT.md                    # Αναλυτική αναφορά project
+├── VISUALIZATION_GUIDE.md       # Οδηγός visualizations
+├── ΟΔΗΓΙΕΣ_ΕΚΤΕΛΕΣΗΣ_EL.md     # Οδηγίες εκτέλεσης
+├── models/                      # Εκπαιδευμένα μοντέλα
+├── results/                     # Αποτελέσματα εκπαίδευσης και plots
+├── visualizations/              # Διαδραστικά HTML dashboards
+├── training_logs/              # Training metrics
 └── tensorboard_logs/            # TensorBoard logs
 ```
 
-## 🎯 Environment Details
+## 🎯 Λεπτομέρειες Περιβάλλοντος
 
-- **Environment**: Mountain Car v0 (Gymnasium)
-- **Observation Space**: Box(2,) - [position, velocity]
-- **Action Space**: Discrete(3) - [left, no acceleration, right]
-- **Reward**: -1 per timestep (sparse rewards)
-- **Goal**: Reach position ≥ 0.5
+- **Περιβάλλον**: Mountain Car v0 (Gymnasium)
+- **Observation Space**: Box(2,) - [θέση, ταχύτητα]
+- **Action Space**: Discrete(3) - [αριστερά, χωρίς επιτάχυνση, δεξιά]
+- **Reward**: -1 ανά timestep (sparse rewards)
+- **Στόχος**: Φτάσει στη θέση ≥ 0.5
 
-## 🧠 Algorithm
+## 🧠 Αλγόριθμος
 
-- **Algorithm**: Proximal Policy Optimization (PPO)
+- **Αλγόριθμος**: Proximal Policy Optimization (PPO)
 - **Framework**: Stable Baselines3
 - **Policy**: Multi-layer Perceptron (MlpPolicy)
 
-## 📊 Results
+## 📊 Αποτελέσματα
 
-After training, the agent should achieve:
-- **Success Rate**: >80%
-- **Mean Reward**: -100 to -150
-- **Mean Episode Length**: 100-150 steps
+Μετά την εκπαίδευση, ο πράκτορας θα πρέπει να επιτύχει:
+- **Ποσοστό Επιτυχίας**: >80%
+- **Mean Reward**: -100 έως -150
+- **Mean Episode Length**: 100-150 βήματα
 
-## 📚 Documentation
+## 📚 Τεκμηρίωση
 
-- **English**: See `REPORT.md` and `VISUALIZATION_GUIDE.md`
-- **Ελληνικά**: Δείτε `REPORT_EL.md` και `VISUALIZATION_GUIDE_EL.md`
+- **REPORT.md** - Αναλυτική αναφορά με περιγραφή περιβάλλοντος, επιλογή αλγορίθμου, εξηγήσεις κώδικα, σύγκριση αλγορίθμων και ανάλυση αποτελεσμάτων
+- **VISUALIZATION_GUIDE.md** - Οδηγός για τα διαδραστικά visualization tools
+- **ΟΔΗΓΙΕΣ_ΕΚΤΕΛΕΣΗΣ_EL.md** - Πλήρεις οδηγίες εκτέλεσης
 
-## 🛠️ Usage Examples
+## 🛠️ Παραδείγματα Χρήσης
 
-### Train without visualization (faster)
+### Εκπαίδευση χωρίς visualization (πιο γρήγορο)
 ```bash
 python mountain_car_ppo.py
 ```
 
-### Train with more frequent visualization
+### Εκπαίδευση με πιο συχνό visualization
 ```bash
 python train_with_visualization.py --freq 25
 ```
 
-### Check training status
+### Έλεγχος κατάστασης εκπαίδευσης
 ```bash
 python check_training_status.py
 ```
 
-### Extract metrics from TensorBoard
+### Εξαγωγή metrics από TensorBoard
 ```bash
 python extract_tensorboard_metrics.py
 ```
 
-## 📈 Monitoring
+## 📈 Παρακολούθηση
 
 - **TensorBoard**: `tensorboard --logdir ./tensorboard_logs/`
-- **Interactive Dashboards**: Open `./visualizations/main_dashboard.html`
-- **Training Metrics**: Automatically saved to `./training_logs/`
+- **Διαδραστικά Dashboards**: Άνοιγμα `./visualizations/main_dashboard.html`
+- **Training Metrics**: Αποθηκεύονται αυτόματα στο `./training_logs/`
 
-## 🤝 Contributing
+## 📝 Σημειώσεις
 
-Feel free to submit issues and enhancement requests!
+- **Χρόνος Εκπαίδευσης**: 30-60 λεπτά (ανάλογα με το hardware)
+- **Real-time Visualization**: Μπορεί να επιβραδύνει λίγο την εκπαίδευση
+- **Metrics**: Αποθηκεύονται αυτόματα κάθε 5 επεισόδια
+- **Checkpoints**: Αποθηκεύονται κάθε 50,000 timesteps
 
-## 📄 License
-
-This project is open source and available for educational purposes.
-
-## 🔗 Links
+## 🔗 Σύνδεσμοι
 
 - [Gymnasium Documentation](https://gymnasium.farama.org/environments/classic_control/mountain_car/)
 - [Stable Baselines3 Documentation](https://stable-baselines3.readthedocs.io/)
 
 ---
 
-**Enjoy training your Mountain Car agent! 🚗⛰️**
+**Απολαύστε την εκπαίδευση του Mountain Car πράκτορα! 🚗⛰️**
