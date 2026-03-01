@@ -71,9 +71,9 @@ obs = [-0.46352962, 0.0]  # Position: -0.46, Velocity: 0.0
 
 | Action | Value | Περιγραφή |
 |--------|-------|-----------|
-| 0 | Accelerate Left | Σπρώχνει το αυτοκίνητο αριστερά |
-| 1 | No Acceleration | Αδράνεια (χωρίς εφαρμογή δύναμης) |
-| 2 | Accelerate Right | Σπρώχνει το αυτοκίνητο δεξιά |
+| -1 | Accelerate Left | Σπρώχνει το αυτοκίνητο αριστερά |
+| 0 | No Acceleration | Αδράνεια (χωρίς εφαρμογή δύναμης) |
+| 1 | Accelerate Right | Σπρώχνει το αυτοκίνητο δεξιά |
 
 **Χαρακτηριστικά Actions**:
 - Discrete actions (μόνο μία ενέργεια ανά timestep)
