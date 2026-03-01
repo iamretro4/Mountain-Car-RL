@@ -11,10 +11,10 @@ import numpy as np
 import os
 import json
 
-# Import training monitor from main script
+# Import training monitor and reward shaping from main script
 import sys
 sys.path.append(os.path.dirname(__file__))
-from mountain_car_ppo import TrainingMonitor
+from mountain_car_ppo import TrainingMonitor, ShapedMountainCar
 
 class VisualTrainingCallback(BaseCallback):
     """
@@ -90,10 +90,12 @@ def train_with_visualization(show_progress=True, progress_freq=50):
     print("Mountain Car - PPO Training with Visualization")
     print("=" * 60)
     
-    # Create vectorized environment for training
-    env = make_vec_env("MountainCar-v0", n_envs=4, seed=42)
-    
-    # Create evaluation environment (for callbacks)
+    # Training uses shaped rewards so the agent gets a learning signal.
+    # Evaluation uses the real (unshaped) env to measure true performance.
+    def make_shaped_env():
+        return ShapedMountainCar(gym.make("MountainCar-v0"))
+
+    env = make_vec_env(make_shaped_env, n_envs=4, seed=42)
     eval_env = gym.make("MountainCar-v0")
     
     # Create visualization environment (for showing progress)
@@ -113,7 +115,7 @@ def train_with_visualization(show_progress=True, progress_freq=50):
         gamma=0.99,
         gae_lambda=0.95,
         clip_range=0.2,
-        ent_coef=0.01,
+        ent_coef=0.02,
         vf_coef=0.5,
         max_grad_norm=0.5,
         tensorboard_log="./tensorboard_logs/",
