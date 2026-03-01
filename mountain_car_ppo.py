@@ -18,6 +18,42 @@ os.makedirs("results", exist_ok=True)
 os.makedirs("models", exist_ok=True)
 
 # ============================================================================
+# Reward Shaping Wrapper
+# ============================================================================
+
+class ShapedMountainCar(gym.Wrapper):
+    """
+    Adds intermediate reward signals so the agent can learn from partial progress.
+    
+    The default MountainCar reward is just -1 per step with no distinction between
+    good and bad states. This wrapper adds small bonuses for reaching higher
+    positions and building velocity, giving the agent a gradient to follow.
+    """
+    def __init__(self, env):
+        super().__init__(env)
+        self.max_position_seen = -np.inf
+
+    def reset(self, **kwargs):
+        obs, info = self.env.reset(**kwargs)
+        self.max_position_seen = obs[0]
+        return obs, info
+
+    def step(self, action):
+        obs, reward, terminated, truncated, info = self.env.step(action)
+        position, velocity = obs[0], obs[1]
+
+        # Reward for reaching a new highest position this episode
+        if position > self.max_position_seen:
+            reward += 10.0 * (position - self.max_position_seen)
+            self.max_position_seen = position
+
+        # Small continuous bonus for height (position) and kinetic energy
+        reward += 0.1 * (position - (-0.5))
+        reward += 5.0 * velocity ** 2
+
+        return obs, reward, terminated, truncated, info
+
+# ============================================================================
 # Environment Setup
 # ============================================================================
 
@@ -119,27 +155,28 @@ def train_ppo_agent():
     print("Mountain Car - PPO Training")
     print("=" * 60)
     
-    # Create vectorized environment for faster training
-    # Using 4 parallel environments
-    env = make_vec_env("MountainCar-v0", n_envs=4, seed=42)
-    
-    # Create evaluation environment
+    # Training uses shaped rewards so the agent gets a learning signal.
+    # Evaluation uses the real (unshaped) env to measure true performance.
+    def make_shaped_env():
+        return ShapedMountainCar(gym.make("MountainCar-v0"))
+
+    env = make_vec_env(make_shaped_env, n_envs=4, seed=42)
     eval_env = gym.make("MountainCar-v0")
     
-    # PPO Hyperparameters
+    # PPO Hyperparameters (tuned for Mountain Car)
     model = PPO(
-        "MlpPolicy",              # Multi-layer perceptron policy
+        "MlpPolicy",
         env,
-        learning_rate=3e-4,       # Learning rate
-        n_steps=2048,             # Steps per update
-        batch_size=64,            # Batch size for training
-        n_epochs=10,              # Number of epochs per update
-        gamma=0.99,               # Discount factor
-        gae_lambda=0.95,          # GAE lambda parameter
-        clip_range=0.2,           # PPO clipping parameter
-        ent_coef=0.01,            # Entropy coefficient
-        vf_coef=0.5,              # Value function coefficient
-        max_grad_norm=0.5,        # Gradient clipping
+        learning_rate=3e-4,
+        n_steps=2048,
+        batch_size=64,
+        n_epochs=10,
+        gamma=0.99,
+        gae_lambda=0.95,
+        clip_range=0.2,
+        ent_coef=0.02,            # Higher entropy -> more exploration early on
+        vf_coef=0.5,
+        max_grad_norm=0.5,
         tensorboard_log="./tensorboard_logs/",
         verbose=1,
         seed=42
